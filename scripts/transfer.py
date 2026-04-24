@@ -30,6 +30,7 @@ import torch  # noqa: E402
 
 from eqxfer.config import RunConfig, config_hash, load_run_config  # noqa: E402
 from eqxfer.data.dataset import WaveformDataset  # noqa: E402
+from eqxfer.data.waveform_cache import WaveformCache  # noqa: E402
 from eqxfer.data.filters import (  # noqa: E402
     load_or_compute_features,
     load_or_compute_site_features,
@@ -147,15 +148,45 @@ def main() -> None:
         flush=True,
     )
 
+    # Build a target-region waveform cache once, reuse across all dataset
+    # constructions (val/test loaders plus each few-shot / from-scratch
+    # adapt set). Cache is keyed by (preproc config + trace set), so this
+    # Chile cache coexists with the California cache from pretraining —
+    # different files, no overwrite.
+    tgt_cache_trace_names = tgt_loader.metadata["trace_name"].tolist()
+    tgt_cache_p_samples = (
+        tgt_loader.metadata["p_arrival_sample"].astype(int).to_numpy()
+    )
+    tgt_cache = WaveformCache(cfg.loader, trace_names=tgt_cache_trace_names)
+    print(
+        f"[cache] target dir={tgt_cache.cache_dir}  key={tgt_cache.key}", flush=True
+    )
+    if tgt_cache.exists():
+        print(f"[cache] hit — {tgt_cache.data_path.name}", flush=True)
+    else:
+        tgt_cache.build(tgt_cache_p_samples)
+
     # Val / test loaders stay fixed across all stages.
     tgt_val_ds = WaveformDataset(
-        cfg.loader, tgt_loader.metadata, tgt_site, tgt_split.val
+        cfg.loader, tgt_loader.metadata, tgt_site, tgt_split.val,
+        waveform_cache=tgt_cache,
     )
     tgt_test_ds = WaveformDataset(
-        cfg.loader, tgt_loader.metadata, tgt_site, tgt_split.test
+        cfg.loader, tgt_loader.metadata, tgt_site, tgt_split.test,
+        waveform_cache=tgt_cache,
     )
-    tgt_val_loader = build_loader(tgt_val_ds, cfg.train.batch_size, cfg.train.num_workers)
-    tgt_test_loader = build_loader(tgt_test_ds, cfg.train.batch_size, cfg.train.num_workers)
+    tgt_val_loader = build_loader(
+        tgt_val_ds,
+        cfg.train.batch_size,
+        cfg.train.num_workers,
+        prefetch_factor=cfg.train.prefetch_factor,
+    )
+    tgt_test_loader = build_loader(
+        tgt_test_ds,
+        cfg.train.batch_size,
+        cfg.train.num_workers,
+        prefetch_factor=cfg.train.prefetch_factor,
+    )
 
     # --- Load pretrained source model ---
     pretrained_state = torch.load(args.pretrained_state, map_location=device)
@@ -195,9 +226,33 @@ def main() -> None:
         src_sample = [
             all_src_names[i] for i in rng.choice(len(all_src_names), size=n_src, replace=False)
         ]
-        src_ds = WaveformDataset(src_cfg.loader, src_loader.metadata, src_site, src_sample)
+        # Reuse the source-region cache built during pretraining. Keyed by
+        # src_cfg.loader + full source trace set, so if pretraining ran on
+        # the same config this is a cache hit; the src_sample is a subset.
+        src_cache = WaveformCache(
+            src_cfg.loader, trace_names=src_loader.metadata["trace_name"].tolist()
+        )
+        src_cache_available = src_cache.exists()
+        if src_cache_available:
+            print(f"[cache] source hit — {src_cache.data_path.name}", flush=True)
+        else:
+            print(
+                "[cache] no source cache found; source embeddings will use "
+                "HDF5+preprocess fallback (slow but one-shot)",
+                flush=True,
+            )
+        src_ds = WaveformDataset(
+            src_cfg.loader,
+            src_loader.metadata,
+            src_site,
+            src_sample,
+            waveform_cache=src_cache if src_cache_available else None,
+        )
         src_loader_dl = build_loader(
-            src_ds, cfg.train.batch_size, cfg.train.num_workers
+            src_ds,
+            cfg.train.batch_size,
+            cfg.train.num_workers,
+            prefetch_factor=cfg.train.prefetch_factor,
         )
         src_embed = extract_physics_embeddings(model, src_loader_dl, device)
         mmd_value = rbf_mmd2(src_embed, tgt_test_embed)
@@ -229,13 +284,20 @@ def main() -> None:
         _row_for_stage(cfg, exp_id, report.stages[-1], mmd_value, probe_r2)
     )
 
-    # Events available for adaptation = target train split events (disjoint
-    # from target test by construction).
-    target_train_meta = tgt_loader.metadata[
-        tgt_loader.metadata["trace_name"].isin(tgt_split.train)
-    ].copy()
-    n_target_events = target_train_meta["source_id"].nunique()
-    print(f"\nAdaptation pool: {len(target_train_meta):,} traces from {n_target_events} events")
+    # Events available for adaptation = training-split events (val/test
+    # events excluded by construction). Pass the FULL target metadata to
+    # the transfer functions so they can build val_ds and adapt_ds against
+    # the same frame; the train_trace_names arg scopes event sampling.
+    n_target_events = int(
+        tgt_loader.metadata.loc[
+            tgt_loader.metadata["trace_name"].isin(tgt_split.train),
+            "source_id",
+        ].nunique()
+    )
+    print(
+        f"\nAdaptation pool: {len(tgt_split.train):,} traces from "
+        f"{n_target_events} events"
+    )
 
     for n in cfg.transfer.few_shot_n:
         if n > n_target_events:
@@ -248,14 +310,16 @@ def main() -> None:
             model_cfg=cfg.model_hparams,
             train_cfg=cfg.train,
             transfer_cfg=cfg.transfer,
-            target_metadata=target_train_meta,
+            target_metadata=tgt_loader.metadata,
             target_site_features=tgt_site,
             loader_cfg=cfg.loader,
             n_events=n,
+            train_trace_names=tgt_split.train,
             val_trace_names=tgt_split.val,
             test_loader=tgt_test_loader,
             device=device,
             exp_dir=exp_dir,
+            waveform_cache=tgt_cache,
         )
         report.stages.append(fs_result)
         append_result_row(_row_for_stage(cfg, exp_id, fs_result, mmd_value, probe_r2))
@@ -265,14 +329,16 @@ def main() -> None:
             model_cfg=cfg.model_hparams,
             train_cfg=cfg.train,
             transfer_cfg=cfg.transfer,
-            target_metadata=target_train_meta,
+            target_metadata=tgt_loader.metadata,
             target_site_features=tgt_site,
             loader_cfg=cfg.loader,
             n_events=n,
+            train_trace_names=tgt_split.train,
             val_trace_names=tgt_split.val,
             test_loader=tgt_test_loader,
             device=device,
             exp_dir=exp_dir,
+            waveform_cache=tgt_cache,
         )
         report.stages.append(fs0_result)
         append_result_row(_row_for_stage(cfg, exp_id, fs0_result, None, {}))

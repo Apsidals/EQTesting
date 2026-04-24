@@ -47,17 +47,29 @@ model_hparams:
   fusion_dropout: 0.1
 
 train:
-  epochs: 60
+  epochs: 80                     # was 60, extended since warmup is longer
   batch_size: 256
-  num_workers: 4
-  lr: 0.001
+  num_workers: 8                 # was 4 — laptop has more cores than this was using
+  prefetch_factor: 4             # keep each worker holding 4 batches ahead
+  lr: 0.0003                     # was 0.001 — peak LR too high, epoch 1 was best
   weight_decay: 0.0001
-  warmup_epochs: 3
-  grad_clip: 1.0
+  warmup_epochs: 8               # was 3 — give the encoder time to settle
+  grad_clip: 0.5                 # was 1.0 — gradients spiked at epoch 11 previously
   huber_delta: 1.0
   amp: true
-  early_stopping_patience: 10
+  early_stopping_patience: 15    # was 10 — longer warmup needs more runway
   bin_width: 1.0
-  sampler_cap: 20.0
+  sampler_cap: 3.0               # was 10.0 — diagnostic run showed sampler overcorrection (bias drifting +0.56 by epoch 6); 3x is gentler and should keep M[3-4] from being sacrificed for M[5-6]
   require_cuda: true
   seed: 0
+
+aux_losses:
+  fc_weight: 0.5                 # was 0.2 — aux heads barely learning (aux MSE ~0.22 in log-space, close to target variance)
+  tau_c_weight: 0.5              # was 0.2 — same reason
+  pd_weight: 0.0                 # Pd is site-modified; keep physics branch clean
+
+separation:
+  weight: 0.05                   # coefficient on L_sep (within-event variance of physics embedding)
+  events_per_batch: 32           # batch_size = 32 * 8 = 256, matches train.batch_size
+  stations_per_event: 8
+  min_stations_per_event: 2      # drop singleton events — can't compute within-event variance on k=1

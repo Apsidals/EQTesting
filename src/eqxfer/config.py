@@ -111,6 +111,7 @@ class TrainConfig(BaseModel):
     epochs: int = 60
     batch_size: int = 256
     num_workers: int = 4
+    prefetch_factor: int = 4  # DataLoader-only; ignored when num_workers == 0
     lr: float = 1e-3
     weight_decay: float = 1e-4
     warmup_epochs: int = 3
@@ -143,6 +144,57 @@ class TransferConfig(BaseModel):
     seed: int = 0
 
 
+class SeparationLossConfig(BaseModel):
+    """Co-event invariance loss on the universal physics embedding.
+
+    The paper's thesis: "source physics is universal across stations." This
+    loss enforces it directly — for each source event with multiple stations
+    in the batch, penalize within-event variance of the physics embedding.
+    Same event, different station → nearly identical physics embedding.
+
+    Requires an event-grouped batch sampler (EventGroupedBatchSampler) that
+    yields batches structured as (events_per_batch × stations_per_event).
+    Events with fewer than min_stations_per_event recordings are excluded
+    from training — they can't contribute to a within-event variance
+    estimate. Expect to lose 20-30% of California traces this way; the
+    surviving set is the one where the invariance claim is testable.
+
+    L_sep is NOT applied during validation/test. It's a training-time
+    regularizer whose effect is measured downstream via the physics probes,
+    MMD across regions, and transfer performance.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    weight: float = 0.05
+    events_per_batch: int = 32     # batch_size = events_per_batch * stations_per_event
+    stations_per_event: int = 8
+    min_stations_per_event: int = 2  # drop singletons — variance undefined on k=1
+
+
+class AuxLossConfig(BaseModel):
+    """Auxiliary physics-regression losses applied during pretraining.
+
+    The magnitude-only loss does not force the universal encoder to represent
+    corner frequency or rupture duration — gradient descent finds
+    amplitude-integration shortcuts and stops. These auxiliary heads make
+    "encodes physics quantity X" a requirement of the embedding, not a hope.
+    Targets are log10 of the physics features already computed per trace.
+
+    pd_weight defaults to 0.0: Pd is station-observed peak displacement, a
+    site-modified amplitude quantity. Regressing the *physics* embedding to
+    Pd would teach it to preserve station-observed amplitude, which fights
+    the "source physics is universal; site response is regional" separation
+    the paper rests on. fc and tau_c are source-side quantities and safe.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    fc_weight: float = 0.2
+    tau_c_weight: float = 0.2
+    pd_weight: float = 0.0
+
+
 class RunConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -153,6 +205,8 @@ class RunConfig(BaseModel):
     model_hparams: ModelConfig = Field(default_factory=ModelConfig)
     train: TrainConfig = Field(default_factory=TrainConfig)
     transfer: TransferConfig | None = None
+    aux_losses: AuxLossConfig = Field(default_factory=AuxLossConfig)
+    separation: SeparationLossConfig = Field(default_factory=SeparationLossConfig)
     notes: str = ""
 
 

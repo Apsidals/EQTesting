@@ -43,18 +43,19 @@ model_hparams:
   fusion_dropout: 0.1
 
 train:
-  epochs: 60
+  epochs: 60                     # used by from_scratch baseline; few-shot overrides via transfer.few_shot_epochs
   batch_size: 256
-  num_workers: 4
-  lr: 0.001
+  num_workers: 2                 # Windows paging-file limit: transfer runs many training loops sequentially, each spawn-loads torch CUDA DLLs per worker (~1GB vmem each). 8 workers × multiple stages overruns the paging file. 2 is enough given the waveform cache makes __getitem__ trivially fast.
+  prefetch_factor: 4
+  lr: 0.0003                     # matches pretraining; few-shot overrides via transfer.few_shot_lr
   weight_decay: 0.0001
-  warmup_epochs: 3
-  grad_clip: 1.0
+  warmup_epochs: 8               # 13% of from-scratch 60 epochs, 27% of few-shot 30 — reasonable both ways
+  grad_clip: 0.5
   huber_delta: 1.0
   amp: true
-  early_stopping_patience: 10
+  early_stopping_patience: 12    # gentle middle between 10 (old) and 15 (pretraining)
   bin_width: 1.0
-  sampler_cap: 20.0
+  sampler_cap: 3.0               # matches pretraining — the big fix; directly affects from-scratch baseline fairness
   require_cuda: true
   seed: 0
 

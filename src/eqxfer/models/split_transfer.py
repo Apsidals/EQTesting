@@ -164,6 +164,14 @@ class SplitTransferModel(nn.Module):
         self.fusion = FusionHead(
             cfg, phys_dim=self.universal.embed_dim, site_dim=self.site.embed_dim
         )
+        # Auxiliary physics heads — trained during pretraining to force the
+        # universal embedding to encode corner frequency and rupture duration.
+        # Discarded at inference; used only by the training loss and
+        # (separately) by the frozen-probe evaluation in embedding_probes.py.
+        # aux_pd is present for optional weighting but defaults off in config.
+        self.aux_fc = nn.Linear(self.universal.embed_dim, 1)
+        self.aux_tau_c = nn.Linear(self.universal.embed_dim, 1)
+        self.aux_pd = nn.Linear(self.universal.embed_dim, 1)
 
     def forward(
         self,
@@ -177,6 +185,23 @@ class SplitTransferModel(nn.Module):
         if return_embeddings:
             return SplitForward(prediction=y, physics_embed=phys, site_embed=site)
         return y
+
+    def forward_with_aux(
+        self,
+        waveform: torch.Tensor,
+        site_feats: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Training-time forward: returns (magnitude, aux_fc, aux_tau_c,
+        aux_pd, physics_embed). The last element is the raw universal-branch
+        embedding — the training loop reshapes it to (events, stations, D)
+        for the co-event invariance loss (L_sep)."""
+        phys = self.universal(waveform)
+        site = self.site(site_feats)
+        mag = self.fusion(phys, site)
+        aux_fc = self.aux_fc(phys).squeeze(-1)
+        aux_tau_c = self.aux_tau_c(phys).squeeze(-1)
+        aux_pd = self.aux_pd(phys).squeeze(-1)
+        return mag, aux_fc, aux_tau_c, aux_pd, phys
 
     def encode_physics(self, waveform: torch.Tensor) -> torch.Tensor:
         return self.universal(waveform)
@@ -209,3 +234,6 @@ class SplitTransferModel(nn.Module):
 
         _reset(self.site)
         _reset(self.fusion)
+        self.aux_fc.reset_parameters()
+        self.aux_tau_c.reset_parameters()
+        self.aux_pd.reset_parameters()

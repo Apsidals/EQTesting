@@ -26,6 +26,7 @@ from torch.utils.data import DataLoader
 from ..config import ModelConfig, TrainConfig, TransferConfig
 from ..data.dataset import WaveformDataset, make_stratified_sampler
 from ..data.splits import few_shot_event_sample
+from ..data.waveform_cache import WaveformCache
 from ..evaluation.metrics import MetricPanel, compute_metric_panel, format_panel
 from ..models.split_transfer import SplitTransferModel
 from ..training.loops import TrainResult, predict, train_model
@@ -71,19 +72,35 @@ def build_loader(
     batch_size: int,
     num_workers: int,
     sampler: torch.utils.data.Sampler | None = None,
+    batch_sampler: torch.utils.data.Sampler | None = None,
     shuffle: bool = False,
     pin_memory: bool = True,
+    prefetch_factor: int = 4,
 ) -> DataLoader:
-    return DataLoader(
-        dataset,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        sampler=sampler,
-        shuffle=(shuffle and sampler is None),
-        pin_memory=pin_memory,
-        persistent_workers=(num_workers > 0),
-        drop_last=False,
-    )
+    kwargs: dict
+    if batch_sampler is not None:
+        # When batch_sampler is provided, DataLoader forbids batch_size,
+        # shuffle, sampler, drop_last — the sampler fully controls batching.
+        kwargs = dict(
+            batch_sampler=batch_sampler,
+            num_workers=num_workers,
+            pin_memory=pin_memory,
+            persistent_workers=(num_workers > 0),
+        )
+    else:
+        kwargs = dict(
+            batch_size=batch_size,
+            num_workers=num_workers,
+            sampler=sampler,
+            shuffle=(shuffle and sampler is None),
+            pin_memory=pin_memory,
+            persistent_workers=(num_workers > 0),
+            drop_last=False,
+        )
+    # prefetch_factor is only legal when num_workers > 0.
+    if num_workers > 0:
+        kwargs["prefetch_factor"] = prefetch_factor
+    return DataLoader(dataset, **kwargs)
 
 
 def zero_shot_evaluate(
@@ -104,20 +121,29 @@ def few_shot_finetune(
     target_site_features: pd.DataFrame,
     loader_cfg,
     n_events: int,
+    train_trace_names: list[str],
     val_trace_names: list[str],
     test_loader: DataLoader,
     device: torch.device,
     exp_dir: Path,
+    waveform_cache: WaveformCache | None = None,
 ) -> TransferStageResult:
     """Sample n_events target events, fine-tune site+fusion (universal
-    encoder frozen by default), eval on test."""
+    encoder frozen by default), eval on test.
+
+    target_metadata must be the FULL target-region metadata (all splits).
+    Event sampling is restricted to training-portion events via
+    train_trace_names so val/test events can't leak in."""
+    train_portion = target_metadata[
+        target_metadata["trace_name"].isin(train_trace_names)
+    ]
     adapt_trace_names = few_shot_event_sample(
-        metadata=target_metadata,
+        metadata=train_portion,
         n_events=n_events,
         seed=transfer_cfg.seed,
     )
-    # Drop any traces that would leak into val (should already be disjoint
-    # since few_shot samples from training-portion events, but belt+braces).
+    # Belt+braces: event sampling already drew from train-portion events,
+    # but drop any straggling val-overlap just in case.
     val_set = set(val_trace_names)
     adapt_trace_names = [t for t in adapt_trace_names if t not in val_set]
 
@@ -126,6 +152,7 @@ def few_shot_finetune(
         metadata=target_metadata,
         site_features=target_site_features,
         trace_names=adapt_trace_names,
+        waveform_cache=waveform_cache,
     )
     sampler = make_stratified_sampler(
         adapt_ds.magnitudes_array(),
@@ -138,18 +165,21 @@ def few_shot_finetune(
         metadata=target_metadata,
         site_features=target_site_features,
         trace_names=val_trace_names,
+        waveform_cache=waveform_cache,
     )
     train_loader = build_loader(
         adapt_ds,
         batch_size=min(train_cfg.batch_size, len(adapt_ds)),
         num_workers=train_cfg.num_workers,
         sampler=sampler,
+        prefetch_factor=train_cfg.prefetch_factor,
     )
     val_loader = build_loader(
         val_ds,
         batch_size=train_cfg.batch_size,
         num_workers=train_cfg.num_workers,
         shuffle=False,
+        prefetch_factor=train_cfg.prefetch_factor,
     )
 
     model = SplitTransferModel(model_cfg)
@@ -192,16 +222,24 @@ def from_scratch_baseline(
     target_site_features: pd.DataFrame,
     loader_cfg,
     n_events: int,
+    train_trace_names: list[str],
     val_trace_names: list[str],
     test_loader: DataLoader,
     device: torch.device,
     exp_dir: Path,
+    waveform_cache: WaveformCache | None = None,
 ) -> TransferStageResult:
     """Train the full split architecture on `n_events` target events WITHOUT
     pretraining. This is the data-efficiency baseline that transfer must
-    beat at low budgets for the hypothesis to hold."""
+    beat at low budgets for the hypothesis to hold.
+
+    target_metadata must be the FULL target-region metadata; event sampling
+    is restricted to train-portion events via train_trace_names."""
+    train_portion = target_metadata[
+        target_metadata["trace_name"].isin(train_trace_names)
+    ]
     adapt_trace_names = few_shot_event_sample(
-        metadata=target_metadata,
+        metadata=train_portion,
         n_events=n_events,
         seed=transfer_cfg.seed + 1,  # different sample than few-shot
     )
@@ -213,12 +251,14 @@ def from_scratch_baseline(
         metadata=target_metadata,
         site_features=target_site_features,
         trace_names=adapt_trace_names,
+        waveform_cache=waveform_cache,
     )
     val_ds = WaveformDataset(
         loader_cfg=loader_cfg,
         metadata=target_metadata,
         site_features=target_site_features,
         trace_names=val_trace_names,
+        waveform_cache=waveform_cache,
     )
     sampler = make_stratified_sampler(
         adapt_ds.magnitudes_array(),
@@ -231,12 +271,14 @@ def from_scratch_baseline(
         batch_size=min(train_cfg.batch_size, len(adapt_ds)),
         num_workers=train_cfg.num_workers,
         sampler=sampler,
+        prefetch_factor=train_cfg.prefetch_factor,
     )
     val_loader = build_loader(
         val_ds,
         batch_size=train_cfg.batch_size,
         num_workers=train_cfg.num_workers,
         shuffle=False,
+        prefetch_factor=train_cfg.prefetch_factor,
     )
 
     model = SplitTransferModel(model_cfg)

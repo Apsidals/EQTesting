@@ -20,7 +20,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from eqxfer.config import RunConfig, config_hash, load_run_config  # noqa: E402
-from eqxfer.data.dataset import WaveformDataset, make_stratified_sampler  # noqa: E402
+from eqxfer.data.dataset import WaveformDataset  # noqa: E402
+from eqxfer.data.samplers import EventGroupedBatchSampler  # noqa: E402
+from eqxfer.data.waveform_cache import WaveformCache  # noqa: E402
 from eqxfer.data.filters import (  # noqa: E402
     load_or_compute_features,
     load_or_compute_site_features,
@@ -184,21 +186,95 @@ def train_rung5(cfg: RunConfig) -> None:
     sizes = split.sizes()
     print(f"Splits: train={sizes['train']:,}  val={sizes['val']:,}  test={sizes['test']:,}")
 
-    train_ds = WaveformDataset(cfg.loader, loader.metadata, site_features, split.train)
-    val_ds = WaveformDataset(cfg.loader, loader.metadata, site_features, split.val)
-    test_ds = WaveformDataset(cfg.loader, loader.metadata, site_features, split.test)
+    # Preprocessed-waveform cache: one memmapped .npy over the union of
+    # train/val/test, keyed by preprocessing config + trace set. Built once,
+    # then every epoch hits a numpy slice instead of HDF5 read + filtfilt.
+    # Defaults to ~/.cache/eqxfer/waveforms (WSL native disk) so it doesn't
+    # inherit the /mnt/c/ 9P bridge penalty.
+    cache_trace_names = loader.metadata["trace_name"].tolist()
+    cache_p_samples = loader.metadata["p_arrival_sample"].astype(int).to_numpy()
+    cache = WaveformCache(cfg.loader, trace_names=cache_trace_names)
+    print(f"[cache] dir={cache.cache_dir}  key={cache.key}", flush=True)
+    if cache.exists():
+        print(f"[cache] hit — {cache.data_path.name}", flush=True)
+    else:
+        cache.build(cache_p_samples)
 
-    sampler = make_stratified_sampler(
-        train_ds.magnitudes_array(),
+    train_ds = WaveformDataset(
+        cfg.loader,
+        loader.metadata,
+        site_features,
+        split.train,
+        phys_features=phys_features,
+        waveform_cache=cache,
+    )
+    val_ds = WaveformDataset(
+        cfg.loader,
+        loader.metadata,
+        site_features,
+        split.val,
+        waveform_cache=cache,
+    )
+    test_ds = WaveformDataset(
+        cfg.loader,
+        loader.metadata,
+        site_features,
+        split.test,
+        waveform_cache=cache,
+    )
+
+    # Event-grouped batch sampler — replaces the old per-trace
+    # WeightedRandomSampler. Each batch is events_per_batch blocks of
+    # stations_per_event traces from the same source event; the training
+    # loop reshapes to (E, K, D) to compute L_sep (within-event variance
+    # of the physics embedding). Magnitude balancing now operates at the
+    # event level, still capped by train.sampler_cap.
+    train_meta_idx = loader.metadata.set_index("trace_name").loc[split.train]
+    event_ids_train = train_meta_idx["source_id"].to_numpy()
+    magnitudes_train = train_meta_idx["source_magnitude"].astype(np.float32).to_numpy()
+    grouped_sampler = EventGroupedBatchSampler(
+        event_ids=event_ids_train,
+        magnitudes=magnitudes_train,
+        events_per_batch=cfg.separation.events_per_batch,
+        stations_per_event=cfg.separation.stations_per_event,
+        min_stations_per_event=cfg.separation.min_stations_per_event,
         bin_width=cfg.train.bin_width,
-        cap=cfg.train.sampler_cap,
+        sampler_cap=cfg.train.sampler_cap,
         seed=cfg.train.seed,
     )
-    train_loader = build_loader(
-        train_ds, cfg.train.batch_size, cfg.train.num_workers, sampler=sampler
+    n_eligible = grouped_sampler.n_eligible_traces()
+    n_total = len(split.train)
+    print(
+        f"[sampler] event-grouped: "
+        f"{len(grouped_sampler.eligible_events):,} events (>= "
+        f"{cfg.separation.min_stations_per_event} stations), "
+        f"{n_eligible:,}/{n_total:,} traces reachable "
+        f"({100*n_eligible/max(1,n_total):.1f}%). "
+        f"{len(grouped_sampler):,} batches/epoch of "
+        f"{grouped_sampler.batch_size} samples "
+        f"({cfg.separation.events_per_batch} events × "
+        f"{cfg.separation.stations_per_event} stations).",
+        flush=True,
     )
-    val_loader = build_loader(val_ds, cfg.train.batch_size, cfg.train.num_workers)
-    test_loader = build_loader(test_ds, cfg.train.batch_size, cfg.train.num_workers)
+    train_loader = build_loader(
+        train_ds,
+        cfg.train.batch_size,
+        cfg.train.num_workers,
+        batch_sampler=grouped_sampler,
+        prefetch_factor=cfg.train.prefetch_factor,
+    )
+    val_loader = build_loader(
+        val_ds,
+        cfg.train.batch_size,
+        cfg.train.num_workers,
+        prefetch_factor=cfg.train.prefetch_factor,
+    )
+    test_loader = build_loader(
+        test_ds,
+        cfg.train.batch_size,
+        cfg.train.num_workers,
+        prefetch_factor=cfg.train.prefetch_factor,
+    )
 
     model = SplitTransferModel(cfg.model_hparams)
     print(
@@ -217,6 +293,8 @@ def train_rung5(cfg: RunConfig) -> None:
         device=device,
         exp_dir=exp_dir,
         tag="pretrain",
+        aux_cfg=cfg.aux_losses,
+        sep_cfg=cfg.separation,
     )
 
     y_val_true, y_val_pred = predict(model, val_loader, device)
