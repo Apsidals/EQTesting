@@ -1,0 +1,26 @@
+rung: 1
+model_name: pd_linear
+notes: "Rung 1: Pd-only log-linear regression, Wu & Kanamori 2005 style."
+
+loader:
+  stead_dir: data/raw/stead
+  csv_name: merge.csv
+  hdf5_name: merge.hdf5
+  region: California
+  magnitude_min: 3.0
+  magnitude_scales: [ml, mw]
+  snr_min_db: 10.0
+  window_samples: 500
+  sample_rate_hz: 100
+  bandpass_low_hz: 0.075
+  bandpass_high_hz: 25.0
+  bandpass_order: 4
+
+split:
+  strategy: california_ridgecrest
+  test_lat_min: 35.3
+  test_lat_max: 36.0
+  test_lon_min: -118.0
+  test_lon_max: -117.0
+  val_fraction: 0.10
+  seed: 0

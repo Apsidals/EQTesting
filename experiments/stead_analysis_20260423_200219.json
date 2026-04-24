@@ -1,0 +1,832 @@
+{
+  "total_traces": 1265657,
+  "earthquake_traces": 1030231,
+  "noise_traces": 235426,
+  "unique_events": 441705,
+  "unique_stations": 2597,
+  "magnitude_types": {
+    "ml": 724824,
+    "md": 239233,
+    "mb": 43174,
+    "mw": 7284,
+    "mb_lg": 5420,
+    "mpv": 4668,
+    "mwr": 1804,
+    "mh": 1482,
+    "mn": 519,
+    "mpva": 312,
+    "h": 266,
+    "ms": 255,
+    "mlg": 231,
+    "mlv": 220,
+    "m": 122,
+    "mww": 105,
+    "mg": 84,
+    "mdl": 76,
+    "mblg": 63,
+    "mbr": 27,
+    "mlr": 22,
+    "none": 17,
+    "mc": 13,
+    "mwc": 7,
+    "mwb": 3
+  },
+  "magnitude_overall": {
+    "count": 1030231,
+    "min": -0.5,
+    "p05": 0.3,
+    "median": 1.3,
+    "mean": 1.5260002465466491,
+    "p95": 3.52,
+    "max": 7.9
+  },
+  "magnitude_binned_overall": {
+    "M2.5-3.5": 106904,
+    "M3.5-4.5": 52367,
+    "M4.5-5.5": 7186,
+    "M5.5-6.5": 433,
+    "M6.5+": 39
+  },
+  "depth_summary_km": {
+    "count": 1030182,
+    "min": -3.49,
+    "median": 8.47,
+    "mean": 15.654730358325036,
+    "p95": 71.6,
+    "max": 341.74
+  },
+  "snr_summary_db": {
+    "count": 1029449,
+    "min": -9.833333016666664,
+    "median": 24.833333333333332,
+    "mean": 26.858305428322826,
+    "p95": 51.13333384,
+    "max": 119.93333435
+  },
+  "by_country": {
+    "US": {
+      "total_traces": 939661,
+      "earthquake_traces": 939661,
+      "unique_events": 398247,
+      "unique_stations": 1811,
+      "magnitude_summary": {
+        "count": 939661,
+        "min": -0.5,
+        "p05": 0.3,
+        "median": 1.23,
+        "mean": 1.4039731349923008,
+        "p95": 3.2,
+        "max": 7.9
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 75233,
+        "M3.5-4.5": 30329,
+        "M4.5-5.5": 3528,
+        "M5.5-6.5": 230,
+        "M6.5+": 22
+      }
+    },
+    "GR": {
+      "total_traces": 17087,
+      "earthquake_traces": 17087,
+      "unique_events": 6181,
+      "unique_stations": 79,
+      "magnitude_summary": {
+        "count": 17087,
+        "min": 1.0,
+        "p05": 2.0,
+        "median": 3.5,
+        "mean": 3.320460584069761,
+        "p95": 4.5,
+        "max": 6.9
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 6345,
+        "M3.5-4.5": 7733,
+        "M4.5-5.5": 875,
+        "M5.5-6.5": 38,
+        "M6.5+": 2
+      }
+    },
+    "CA": {
+      "total_traces": 10667,
+      "earthquake_traces": 10667,
+      "unique_events": 4689,
+      "unique_stations": 279,
+      "magnitude_summary": {
+        "count": 10667,
+        "min": 0.0,
+        "p05": 0.9,
+        "median": 1.6,
+        "mean": 1.8499643761132465,
+        "p95": 3.74,
+        "max": 6.6
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 1357,
+        "M3.5-4.5": 531,
+        "M4.5-5.5": 160,
+        "M5.5-6.5": 35,
+        "M6.5+": 1
+      }
+    },
+    "MX": {
+      "total_traces": 10437,
+      "earthquake_traces": 10437,
+      "unique_events": 4456,
+      "unique_stations": 104,
+      "magnitude_summary": {
+        "count": 10437,
+        "min": 0.5,
+        "p05": 1.39,
+        "median": 2.7,
+        "mean": 2.630188751556961,
+        "p95": 3.8919999999999892,
+        "max": 5.7
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 5462,
+        "M3.5-4.5": 1084,
+        "M4.5-5.5": 120,
+        "M5.5-6.5": 2,
+        "M6.5+": 0
+      }
+    },
+    "PR": {
+      "total_traces": 6221,
+      "earthquake_traces": 6221,
+      "unique_events": 2532,
+      "unique_stations": 26,
+      "magnitude_summary": {
+        "count": 6221,
+        "min": 0.94,
+        "p05": 1.84,
+        "median": 2.83,
+        "mean": 2.805632534962225,
+        "p95": 3.7,
+        "max": 6.3
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 3896,
+        "M3.5-4.5": 530,
+        "M4.5-5.5": 57,
+        "M5.5-6.5": 8,
+        "M6.5+": 0
+      }
+    },
+    "ZA": {
+      "total_traces": 4908,
+      "earthquake_traces": 4908,
+      "unique_events": 3069,
+      "unique_stations": 14,
+      "magnitude_summary": {
+        "count": 4908,
+        "min": 0.3,
+        "p05": 1.2,
+        "median": 1.7,
+        "mean": 1.7496373268133658,
+        "p95": 2.4,
+        "max": 4.9
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 153,
+        "M3.5-4.5": 6,
+        "M4.5-5.5": 1,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "IT": {
+      "total_traces": 4458,
+      "earthquake_traces": 4458,
+      "unique_events": 1588,
+      "unique_stations": 209,
+      "magnitude_summary": {
+        "count": 4458,
+        "min": 0.3,
+        "p05": 1.8,
+        "median": 2.8,
+        "mean": 2.8626940331987436,
+        "p95": 3.8,
+        "max": 5.5
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 2194,
+        "M3.5-4.5": 947,
+        "M4.5-5.5": 56,
+        "M5.5-6.5": 4,
+        "M6.5+": 0
+      }
+    },
+    "CL": {
+      "total_traces": 3939,
+      "earthquake_traces": 3939,
+      "unique_events": 2378,
+      "unique_stations": 22,
+      "magnitude_summary": {
+        "count": 3939,
+        "min": 2.4,
+        "p05": 3.1,
+        "median": 4.0,
+        "mean": 4.052366082762123,
+        "p95": 5.1,
+        "max": 7.7
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 650,
+        "M3.5-4.5": 2273,
+        "M4.5-5.5": 975,
+        "M5.5-6.5": 34,
+        "M6.5+": 6
+      }
+    },
+    "CN": {
+      "total_traces": 3747,
+      "earthquake_traces": 3747,
+      "unique_events": 2138,
+      "unique_stations": 60,
+      "magnitude_summary": {
+        "count": 3747,
+        "min": 0.1,
+        "p05": 0.6,
+        "median": 1.4,
+        "mean": 1.8451160928742993,
+        "p95": 4.0,
+        "max": 5.4
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 325,
+        "M3.5-4.5": 625,
+        "M4.5-5.5": 32,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "KZ": {
+      "total_traces": 2929,
+      "earthquake_traces": 2929,
+      "unique_events": 1933,
+      "unique_stations": 29,
+      "magnitude_summary": {
+        "count": 2929,
+        "min": 0.0,
+        "p05": 0.7,
+        "median": 1.6,
+        "mean": 1.8260874018436328,
+        "p95": 3.8,
+        "max": 6.2
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 312,
+        "M3.5-4.5": 276,
+        "M4.5-5.5": 31,
+        "M5.5-6.5": 1,
+        "M6.5+": 0
+      }
+    },
+    "TR": {
+      "total_traces": 2692,
+      "earthquake_traces": 2692,
+      "unique_events": 1691,
+      "unique_stations": 71,
+      "magnitude_summary": {
+        "count": 2692,
+        "min": 1.1,
+        "p05": 1.9,
+        "median": 2.8,
+        "mean": 2.8995653789004456,
+        "p95": 4.0,
+        "max": 5.8
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 1622,
+        "M3.5-4.5": 470,
+        "M4.5-5.5": 34,
+        "M5.5-6.5": 2,
+        "M6.5+": 0
+      }
+    },
+    "NZ": {
+      "total_traces": 2129,
+      "earthquake_traces": 2129,
+      "unique_events": 1336,
+      "unique_stations": 8,
+      "magnitude_summary": {
+        "count": 2129,
+        "min": 2.8,
+        "p05": 3.2,
+        "median": 4.0,
+        "mean": 4.014861437294505,
+        "p95": 5.0,
+        "max": 6.7
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 267,
+        "M3.5-4.5": 1476,
+        "M4.5-5.5": 354,
+        "M5.5-6.5": 26,
+        "M6.5+": 6
+      }
+    },
+    "RU": {
+      "total_traces": 1886,
+      "earthquake_traces": 1886,
+      "unique_events": 1472,
+      "unique_stations": 27,
+      "magnitude_summary": {
+        "count": 1886,
+        "min": 0.9,
+        "p05": 1.9,
+        "median": 3.1,
+        "mean": 3.1873435843054083,
+        "p95": 4.5,
+        "max": 6.3
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 758,
+        "M3.5-4.5": 643,
+        "M4.5-5.5": 90,
+        "M5.5-6.5": 12,
+        "M6.5+": 0
+      }
+    },
+    "KG": {
+      "total_traces": 1803,
+      "earthquake_traces": 1803,
+      "unique_events": 855,
+      "unique_stations": 18,
+      "magnitude_summary": {
+        "count": 1803,
+        "min": 1.4,
+        "p05": 2.3,
+        "median": 3.4,
+        "mean": 3.3171270105379924,
+        "p95": 4.3,
+        "max": 5.4
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 771,
+        "M3.5-4.5": 801,
+        "M4.5-5.5": 56,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "DO": {
+      "total_traces": 1757,
+      "earthquake_traces": 1757,
+      "unique_events": 617,
+      "unique_stations": 24,
+      "magnitude_summary": {
+        "count": 1757,
+        "min": 1.8,
+        "p05": 2.6,
+        "median": 3.3,
+        "mean": 3.323192942515652,
+        "p95": 4.3,
+        "max": 5.8
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 1179,
+        "M3.5-4.5": 478,
+        "M4.5-5.5": 48,
+        "M5.5-6.5": 7,
+        "M6.5+": 0
+      }
+    },
+    "VG": {
+      "total_traces": 1599,
+      "earthquake_traces": 1599,
+      "unique_events": 780,
+      "unique_stations": 26,
+      "magnitude_summary": {
+        "count": 1599,
+        "min": 1.54,
+        "p05": 2.52,
+        "median": 3.27,
+        "mean": 3.2797811131957473,
+        "p95": 4.3,
+        "max": 4.9
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 1036,
+        "M3.5-4.5": 446,
+        "M4.5-5.5": 55,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "FR": {
+      "total_traces": 1560,
+      "earthquake_traces": 1560,
+      "unique_events": 667,
+      "unique_stations": 63,
+      "magnitude_summary": {
+        "count": 1560,
+        "min": 1.0,
+        "p05": 1.8,
+        "median": 2.5,
+        "mean": 2.6555897435897435,
+        "p95": 3.9,
+        "max": 5.0
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 744,
+        "M3.5-4.5": 137,
+        "M4.5-5.5": 20,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "ES": {
+      "total_traces": 1159,
+      "earthquake_traces": 1159,
+      "unique_events": 397,
+      "unique_stations": 37,
+      "magnitude_summary": {
+        "count": 1159,
+        "min": 0.7,
+        "p05": 1.8,
+        "median": 2.6,
+        "mean": 2.730914581535807,
+        "p95": 3.9,
+        "max": 4.6
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 498,
+        "M3.5-4.5": 191,
+        "M4.5-5.5": 13,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "GE": {
+      "total_traces": 1057,
+      "earthquake_traces": 1057,
+      "unique_events": 395,
+      "unique_stations": 15,
+      "magnitude_summary": {
+        "count": 1057,
+        "min": 1.4,
+        "p05": 1.9,
+        "median": 2.9,
+        "mean": 3.002951750236518,
+        "p95": 4.0,
+        "max": 5.3
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 582,
+        "M3.5-4.5": 272,
+        "M4.5-5.5": 14,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "CZ": {
+      "total_traces": 1012,
+      "earthquake_traces": 1012,
+      "unique_events": 158,
+      "unique_stations": 23,
+      "magnitude_summary": {
+        "count": 1012,
+        "min": 1.0,
+        "p05": 1.0,
+        "median": 2.1,
+        "mean": 2.0090909090909093,
+        "p95": 2.9,
+        "max": 3.7
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 178,
+        "M3.5-4.5": 9,
+        "M4.5-5.5": 0,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "AR": {
+      "total_traces": 986,
+      "earthquake_traces": 986,
+      "unique_events": 686,
+      "unique_stations": 13,
+      "magnitude_summary": {
+        "count": 986,
+        "min": 2.5,
+        "p05": 3.0,
+        "median": 3.9,
+        "mean": 3.8629716024340772,
+        "p95": 4.7,
+        "max": 6.3
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 283,
+        "M3.5-4.5": 531,
+        "M4.5-5.5": 169,
+        "M5.5-6.5": 3,
+        "M6.5+": 0
+      }
+    },
+    "AL": {
+      "total_traces": 675,
+      "earthquake_traces": 675,
+      "unique_events": 440,
+      "unique_stations": 24,
+      "magnitude_summary": {
+        "count": 675,
+        "min": 1.3,
+        "p05": 2.0,
+        "median": 2.8,
+        "mean": 2.900296296296296,
+        "p95": 4.0,
+        "max": 5.2
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 366,
+        "M3.5-4.5": 113,
+        "M4.5-5.5": 17,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "DE": {
+      "total_traces": 671,
+      "earthquake_traces": 671,
+      "unique_events": 550,
+      "unique_stations": 18,
+      "magnitude_summary": {
+        "count": 671,
+        "min": 0.6,
+        "p05": 1.4,
+        "median": 2.3,
+        "mean": 2.311028315946349,
+        "p95": 3.3,
+        "max": 4.4
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 234,
+        "M3.5-4.5": 26,
+        "M4.5-5.5": 0,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "VI": {
+      "total_traces": 644,
+      "earthquake_traces": 644,
+      "unique_events": 318,
+      "unique_stations": 25,
+      "magnitude_summary": {
+        "count": 644,
+        "min": 1.43,
+        "p05": 2.0715,
+        "median": 3.0,
+        "mean": 2.9907142857142857,
+        "p95": 3.8,
+        "max": 4.5
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 479,
+        "M3.5-4.5": 74,
+        "M4.5-5.5": 1,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "MK": {
+      "total_traces": 603,
+      "earthquake_traces": 603,
+      "unique_events": 266,
+      "unique_stations": 20,
+      "magnitude_summary": {
+        "count": 603,
+        "min": 1.1,
+        "p05": 1.5,
+        "median": 2.5,
+        "mean": 2.6117247097844114,
+        "p95": 4.0,
+        "max": 5.3
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 164,
+        "M3.5-4.5": 129,
+        "M4.5-5.5": 9,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "SV": {
+      "total_traces": 599,
+      "earthquake_traces": 599,
+      "unique_events": 276,
+      "unique_stations": 4,
+      "magnitude_summary": {
+        "count": 599,
+        "min": 2.3,
+        "p05": 2.9,
+        "median": 3.83,
+        "mean": 3.8593322203672793,
+        "p95": 4.7,
+        "max": 5.4
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 157,
+        "M3.5-4.5": 368,
+        "M4.5-5.5": 71,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "PT": {
+      "total_traces": 500,
+      "earthquake_traces": 500,
+      "unique_events": 273,
+      "unique_stations": 9,
+      "magnitude_summary": {
+        "count": 500,
+        "min": 1.2,
+        "p05": 1.7,
+        "median": 2.9,
+        "mean": 2.9823999999999997,
+        "p95": 4.3,
+        "max": 5.0
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 211,
+        "M3.5-4.5": 138,
+        "M4.5-5.5": 17,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "BG": {
+      "total_traces": 316,
+      "earthquake_traces": 316,
+      "unique_events": 183,
+      "unique_stations": 18,
+      "magnitude_summary": {
+        "count": 316,
+        "min": 1.6,
+        "p05": 2.1,
+        "median": 2.9,
+        "mean": 2.9756329113924047,
+        "p95": 4.1,
+        "max": 5.6
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 188,
+        "M3.5-4.5": 57,
+        "M4.5-5.5": 7,
+        "M5.5-6.5": 2,
+        "M6.5+": 0
+      }
+    },
+    "TW": {
+      "total_traces": 316,
+      "earthquake_traces": 316,
+      "unique_events": 315,
+      "unique_stations": 1,
+      "magnitude_summary": {
+        "count": 316,
+        "min": 3.2,
+        "p05": 3.4,
+        "median": 4.0,
+        "mean": 4.113037974683544,
+        "p95": 5.025,
+        "max": 6.2
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 29,
+        "M3.5-4.5": 218,
+        "M4.5-5.5": 59,
+        "M5.5-6.5": 10,
+        "M6.5+": 0
+      }
+    },
+    "UZ": {
+      "total_traces": 314,
+      "earthquake_traces": 314,
+      "unique_events": 189,
+      "unique_stations": 7,
+      "magnitude_summary": {
+        "count": 314,
+        "min": 1.9,
+        "p05": 2.5,
+        "median": 3.2,
+        "mean": 3.2611146496815286,
+        "p95": 4.334999999999996,
+        "max": 5.3
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 184,
+        "M3.5-4.5": 109,
+        "M4.5-5.5": 7,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    }
+  },
+  "by_target_region": {
+    "California": {
+      "total_traces": 602397,
+      "earthquake_traces": 602397,
+      "unique_events": 272515,
+      "unique_stations": 592,
+      "magnitude_summary": {
+        "count": 602397,
+        "min": -0.42,
+        "p05": 0.2,
+        "median": 1.0,
+        "mean": 1.1654137055795428,
+        "p95": 2.6,
+        "max": 6.0
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 30748,
+        "M3.5-4.5": 6700,
+        "M4.5-5.5": 731,
+        "M5.5-6.5": 76,
+        "M6.5+": 0
+      }
+    },
+    "Turkey": {
+      "total_traces": 1214,
+      "earthquake_traces": 1214,
+      "unique_events": 498,
+      "unique_stations": 29,
+      "magnitude_summary": {
+        "count": 1214,
+        "min": 1.3,
+        "p05": 1.9,
+        "median": 2.8,
+        "mean": 2.910477759472817,
+        "p95": 4.0,
+        "max": 4.5
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 759,
+        "M3.5-4.5": 240,
+        "M4.5-5.5": 2,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "Greece": {
+      "total_traces": 21054,
+      "earthquake_traces": 21054,
+      "unique_events": 8567,
+      "unique_stations": 103,
+      "magnitude_summary": {
+        "count": 21054,
+        "min": 1.0,
+        "p05": 2.0,
+        "median": 3.3,
+        "mean": 3.2313151895126815,
+        "p95": 4.4,
+        "max": 6.9
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 8477,
+        "M3.5-4.5": 8435,
+        "M4.5-5.5": 932,
+        "M5.5-6.5": 40,
+        "M6.5+": 2
+      }
+    },
+    "Japan": {
+      "total_traces": 0,
+      "earthquake_traces": 0,
+      "unique_events": 0,
+      "unique_stations": 0,
+      "magnitude_summary": {},
+      "magnitude_binned": {
+        "M2.5-3.5": 0,
+        "M3.5-4.5": 0,
+        "M4.5-5.5": 0,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "Chile": {
+      "total_traces": 5070,
+      "earthquake_traces": 5070,
+      "unique_events": 3168,
+      "unique_stations": 22,
+      "magnitude_summary": {
+        "count": 5070,
+        "min": 2.4,
+        "p05": 3.1,
+        "median": 4.0,
+        "mean": 4.015573964497041,
+        "p95": 5.0,
+        "max": 7.7
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 963,
+        "M3.5-4.5": 2873,
+        "M4.5-5.5": 1186,
+        "M5.5-6.5": 41,
+        "M6.5+": 6
+      }
+    }
+  }
+}

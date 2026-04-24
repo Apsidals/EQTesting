@@ -1,0 +1,68 @@
+# Transfer experiment: California-pretrained split architecture → Chile.
+# Chile is the hardest target — megathrust subduction, maximally different
+# from California strike-slip. If transfer works here at all, the method
+# is real (per CLAUDE.md).
+rung: 6
+model_name: split_transfer_transfer
+notes: >
+  Transfer to Chile (megathrust subduction, spans M2.4–M7.7 in STEAD).
+  Zero-shot + few-shot at n ∈ {100, 500, 2000}, plus from-scratch baseline.
+  few_shot_n top-end capped by available Chile data (5.1k traces).
+
+loader:
+  stead_dir: data/raw/stead
+  csv_name: merge.csv
+  hdf5_name: merge.hdf5
+  region: Chile
+  magnitude_min: 3.0
+  magnitude_scales: [ml, mw]
+  snr_min_db: 10.0
+  window_samples: 500
+  sample_rate_hz: 100
+  bandpass_low_hz: 0.075
+  bandpass_high_hz: 25.0
+  bandpass_order: 4
+
+split:
+  strategy: event_grouped
+  val_fraction: 0.10
+  test_fraction: 0.10
+  seed: 0
+
+model_hparams:
+  phys_channels: [32, 64, 128, 128]
+  phys_kernel_size: 7
+  phys_stride: 2
+  phys_groupnorm_groups: 8
+  phys_embed_dim: 128
+  phys_dropout: 0.1
+  site_hidden: [64, 64]
+  site_embed_dim: 32
+  site_dropout: 0.1
+  fusion_hidden: [128, 64]
+  fusion_dropout: 0.1
+
+train:
+  epochs: 60
+  batch_size: 256
+  num_workers: 4
+  lr: 0.001
+  weight_decay: 0.0001
+  warmup_epochs: 3
+  grad_clip: 1.0
+  huber_delta: 1.0
+  amp: true
+  early_stopping_patience: 10
+  bin_width: 1.0
+  sampler_cap: 20.0
+  require_cuda: true
+  seed: 0
+
+transfer:
+  target_region: Chile
+  few_shot_n: [100, 500, 2000]
+  few_shot_epochs: 30
+  few_shot_lr: 0.0005
+  from_scratch_epochs: 60
+  freeze_universal: true
+  seed: 0

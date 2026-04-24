@@ -1,0 +1,194 @@
+{
+  "total_traces": 1265657,
+  "earthquake_traces": 1030231,
+  "noise_traces": 235426,
+  "unique_events": 441705,
+  "unique_stations": 2597,
+  "magnitude_types": {
+    "ml": 724824,
+    "md": 239233,
+    "mb": 43174,
+    "mw": 7284,
+    "mb_lg": 5420,
+    "mpv": 4668,
+    "mwr": 1804,
+    "mh": 1482,
+    "mn": 519,
+    "mpva": 312,
+    "h": 266,
+    "ms": 255,
+    "mlg": 231,
+    "mlv": 220,
+    "m": 122,
+    "mww": 105,
+    "mg": 84,
+    "mdl": 76,
+    "mblg": 63,
+    "mbr": 27,
+    "mlr": 22,
+    "none": 17,
+    "mc": 13,
+    "mwc": 7,
+    "mwb": 3
+  },
+  "magnitude_overall": {
+    "count": 1030231,
+    "min": -0.5,
+    "p05": 0.3,
+    "median": 1.3,
+    "mean": 1.5260002465466491,
+    "p95": 3.52,
+    "max": 7.9
+  },
+  "magnitude_binned_overall": {
+    "M2.5-3.5": 106904,
+    "M3.5-4.5": 52367,
+    "M4.5-5.5": 7186,
+    "M5.5-6.5": 433,
+    "M6.5+": 39
+  },
+  "depth_summary_km": {
+    "count": 1030182,
+    "min": -3.49,
+    "median": 8.47,
+    "mean": 15.654730358325036,
+    "p95": 71.6,
+    "max": 341.74
+  },
+  "snr_summary_db": {
+    "count": 1029449,
+    "min": -9.833333016666664,
+    "median": 24.833333333333332,
+    "mean": 26.858305428322826,
+    "p95": 51.13333384,
+    "max": 119.93333435
+  },
+  "by_country": {
+    "<unknown>": {
+      "total_traces": 1030231,
+      "earthquake_traces": 1030231,
+      "unique_events": 441705,
+      "unique_stations": 2597,
+      "magnitude_summary": {
+        "count": 1030231,
+        "min": -0.5,
+        "p05": 0.3,
+        "median": 1.3,
+        "mean": 1.5260002465466491,
+        "p95": 3.52,
+        "max": 7.9
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 106904,
+        "M3.5-4.5": 52367,
+        "M4.5-5.5": 7186,
+        "M5.5-6.5": 433,
+        "M6.5+": 39
+      }
+    }
+  },
+  "by_target_region": {
+    "California": {
+      "total_traces": 602397,
+      "earthquake_traces": 602397,
+      "unique_events": 272515,
+      "unique_stations": 592,
+      "magnitude_summary": {
+        "count": 602397,
+        "min": -0.42,
+        "p05": 0.2,
+        "median": 1.0,
+        "mean": 1.1654137055795428,
+        "p95": 2.6,
+        "max": 6.0
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 30748,
+        "M3.5-4.5": 6700,
+        "M4.5-5.5": 731,
+        "M5.5-6.5": 76,
+        "M6.5+": 0
+      }
+    },
+    "Turkey": {
+      "total_traces": 1214,
+      "earthquake_traces": 1214,
+      "unique_events": 498,
+      "unique_stations": 29,
+      "magnitude_summary": {
+        "count": 1214,
+        "min": 1.3,
+        "p05": 1.9,
+        "median": 2.8,
+        "mean": 2.910477759472817,
+        "p95": 4.0,
+        "max": 4.5
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 759,
+        "M3.5-4.5": 240,
+        "M4.5-5.5": 2,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "Greece": {
+      "total_traces": 21054,
+      "earthquake_traces": 21054,
+      "unique_events": 8567,
+      "unique_stations": 103,
+      "magnitude_summary": {
+        "count": 21054,
+        "min": 1.0,
+        "p05": 2.0,
+        "median": 3.3,
+        "mean": 3.2313151895126815,
+        "p95": 4.4,
+        "max": 6.9
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 8477,
+        "M3.5-4.5": 8435,
+        "M4.5-5.5": 932,
+        "M5.5-6.5": 40,
+        "M6.5+": 2
+      }
+    },
+    "Japan": {
+      "total_traces": 0,
+      "earthquake_traces": 0,
+      "unique_events": 0,
+      "unique_stations": 0,
+      "magnitude_summary": {},
+      "magnitude_binned": {
+        "M2.5-3.5": 0,
+        "M3.5-4.5": 0,
+        "M4.5-5.5": 0,
+        "M5.5-6.5": 0,
+        "M6.5+": 0
+      }
+    },
+    "Chile": {
+      "total_traces": 5070,
+      "earthquake_traces": 5070,
+      "unique_events": 3168,
+      "unique_stations": 22,
+      "magnitude_summary": {
+        "count": 5070,
+        "min": 2.4,
+        "p05": 3.1,
+        "median": 4.0,
+        "mean": 4.015573964497041,
+        "p95": 5.0,
+        "max": 7.7
+      },
+      "magnitude_binned": {
+        "M2.5-3.5": 963,
+        "M3.5-4.5": 2873,
+        "M4.5-5.5": 1186,
+        "M5.5-6.5": 41,
+        "M6.5+": 6
+      }
+    }
+  }
+}
